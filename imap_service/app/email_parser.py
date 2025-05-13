@@ -6,9 +6,10 @@ def processIncomingEmail(subject, sender, body):
     if "create poll" in subjectLower:
         emails = extractListFromLine(body, "emails:")
         dates = extractListFromLine(body, "dates:")
+        location = extractListFromLine(body, "location")
         if not emails or not dates:
             return
-        createPoll(sender, emails, dates)
+        createPoll(sender, emails, dates, location)
 
     elif "vote on poll" in subjectLower:
         pollId = extractValueFromLine(body, "poll_id:")

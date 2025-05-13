@@ -1,16 +1,15 @@
 # Business logic for the flask application
 
 import json
-import requests
 from collections import Counter
 from app.db.database import db
 from app.models.poll_model import Poll
 from app.models.vote_model import Vote
-
-NOTIFY_URL = "http://imap_service:8000/notify"
+from app.services.notification_service import sendNotification
+from app.services.weather_service import getWeatherForecast
 
 # Adds a poll to the database
-def addPoll(sender, emails, dates):
+def addPoll(sender, emails, dates, location):
     if not sender or not emails or not dates:
         raise ValueError("Sender, emails and dates are required.")
 
@@ -28,6 +27,8 @@ def addPoll(sender, emails, dates):
 
     poll_id = new_poll.id
 
+    weather_info = getWeatherForecast(dates, location)
+
     # Notification based on the circumstance
     for email in emails:
         sendNotification(
@@ -36,8 +37,8 @@ def addPoll(sender, emails, dates):
             message=(
                 f"You have been invited to vote in a date poll created by {sender}.\n\n"
                 f"Poll ID: {poll_id}\n\n"
-                f"Available dates:\n" +
-                "\n".join(f"- {date}" for date in dates) +
+                f"Available dates and weather forecast:\n" +
+                "\n".join(f"- {date}: {weather_info.get(date, 'Unknown')}" for date in dates) +
                 "\n\nTo vote, reply to this email with:\n"
                 f"For instance, if you are available at all dates:\n"
                 f"Subject: vote on poll\n\n"
@@ -139,16 +140,3 @@ def tryFinalizePoll(poll: Poll):
     poll.confirmed_date = final_date
     db.session.commit()
     return final_date
-
-# Sends a POST request to the IMAP service to trigger an email notification to the recipient
-def sendNotification(to, subject, message):
-    try:
-        payload = {
-            "to": to,
-            "subject": subject,
-            "message": message
-        }
-        res = requests.post(NOTIFY_URL, json=payload, timeout=3)
-        res.raise_for_status()
-    except Exception as e:
-        print(f"[NOTIFICATION ERROR] {e}")

@@ -4,11 +4,12 @@ import requests
 
 POLL_SERVICE_BASE = "http://scheduler_service:5000/polls"
 
-def createPoll(sender, emails, dates):
+def createPoll(sender, emails, dates, location):
     payload = {
         "sender": sender,
         "emails": emails,
-        "dates": dates
+        "dates": dates,
+        "location": location
     }
     try:
         requests.post(f"{POLL_SERVICE_BASE}/create", json=payload, timeout=5)

@@ -12,8 +12,9 @@ def createPoll():
         sender = data.get('sender')
         emails = data.get('emails')
         dates = data.get('dates')
+        location = data.get('location')
 
-        poll_id = addPoll(sender, emails, dates)
+        poll_id = addPoll(sender, emails, dates, location)
 
         return jsonify({'status': 'ok', 'poll_id': poll_id}), 201
     except ValueError as ve:
