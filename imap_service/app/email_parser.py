@@ -1,6 +1,5 @@
 from app.rest_client import createPoll, voteOnPoll
 from app.notification_server import sendEmail
-
 from app.rest_client import createPoll, voteOnPoll
 from app.notification_server import sendEmail
 

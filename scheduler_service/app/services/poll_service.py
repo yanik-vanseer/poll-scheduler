@@ -125,9 +125,9 @@ def addVote(poll_id, sender, dates):
 
 # Attempts to finalize the poll by selecting the most common voted date if all have voted
 def tryFinalizePoll(poll: Poll):
-    invited = set(json.loads(poll.invited_emails))
+    invited = set(email.strip().lower() for email in json.loads(poll.invited_emails))
     votes = Vote.query.filter_by(poll_id=poll.id).all()
-    voters = set(v.voter_email for v in votes)
+    voters = set(v.voter_email.strip().lower() for v in votes)
 
     if not invited.issubset(voters):
         return None
